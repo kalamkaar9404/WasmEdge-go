@@ -1,5 +1,6 @@
 package wasmedge
 
+import "C"
 import "testing"
 
 const (
