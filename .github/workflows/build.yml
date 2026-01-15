@@ -58,11 +58,11 @@ jobs:
           else
             PLATFORM="darwin_x86_64"
           fi
-          wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0 -p $PLATFORM
+          wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0 --debug -p $PLATFORM
           source $HOME/.wasmedge/env
       - name: Build WasmEdge-go
         run: |
           source $HOME/.wasmedge/env
           go build ./wasmedge/
       - name: Bazel Test
-        run: bazel test //... --test_output=errors --@io_bazel_rules_go//go/config:pure=false
+        run: bazel test //...
