@@ -66,3 +66,4 @@ jobs:
           go build ./wasmedge/
       - name: Bazel Test
         run: bazel test //...
+ 
