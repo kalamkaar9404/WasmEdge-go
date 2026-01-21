@@ -1,9 +1,5 @@
+
 name: build
-
-concurrency:
-  group: build-${{ github.head_ref }}
-  cancel-in-progress: true
-
 on:
   push:
     branches:
@@ -18,12 +14,16 @@ jobs:
     env:
       CGO_ENABLED: 1
       USE_BAZEL_VERSION: 7.4.1
+    strategy:
+      matrix:
+        go: [ '1.22.x', '1.23.x' ]
+    name: Build WasmEdge-go on Ubuntu with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
       - name: Install go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23.x'
+          go-version: ${{ matrix.go }}
           cache: false
       - name: Install and Test
         run: |
@@ -34,19 +34,23 @@ jobs:
             --copt="-I$HOME/.wasmedge/include" \
             --linkopt="-L$HOME/.wasmedge/lib" \
             --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
-
   build_macos:
     runs-on: macos-14
     env:
       CGO_ENABLED: 1
       USE_BAZEL_VERSION: 7.4.1
+    strategy:
+      matrix:
+        go: [ '1.22.x', '1.23.x' ]
+    name: Build WasmEdge-go on MacOS with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
       - name: Install go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23.x'
+          go-version: ${{ matrix.go }}
           cache: false
       - name: Install and Test
         run: |
@@ -56,5 +60,6 @@ jobs:
             --test_output=errors \
             --copt="-I$HOME/.wasmedge/include" \
             --linkopt="-L$HOME/.wasmedge/lib" \
+            --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
