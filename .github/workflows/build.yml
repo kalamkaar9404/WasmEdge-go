@@ -33,6 +33,7 @@ jobs:
         run: |
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
           
+          # Indentation here is critical
           bazel test //... \
             --test_output=errors \
             --copt="-I$HOME/.wasmedge/include" \
@@ -58,7 +59,6 @@ jobs:
           cache: false
       - name: Install and Test
         run: |
-          # Use curl for macOS reliability
           curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
           
           bazel test //... \
