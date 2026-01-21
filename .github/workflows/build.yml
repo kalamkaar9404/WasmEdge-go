@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       CGO_ENABLED: 1
-      USE_BAZEL_VERSION: 7.4.1  # Force a stable version
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
@@ -24,4 +23,25 @@ jobs:
             --copt="-I$HOME/.wasmedge/include" \
             --linkopt="-L$HOME/.wasmedge/lib" \
             --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --@io_bazel_rules_go//go/config:pure=false
+            
+  build_macos:
+    runs-on: macos-14
+    env:
+      CGO_ENABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+      - name: Install and Test
+        run: |
+          curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
+          
+          bazel test //... \
+            --test_output=errors \
+            --copt="-I$HOME/.wasmedge/include" \
+            --linkopt="-L$HOME/.wasmedge/lib" \
+            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
