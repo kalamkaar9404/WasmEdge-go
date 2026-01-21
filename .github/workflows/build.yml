@@ -7,9 +7,7 @@ concurrency:
 on:
   push:
     branches:
-      - master  # Reverted from "**" for the final PR
-    tags:
-      - "*"
+      - "**"
   pull_request:
     branches:
       - master
@@ -23,7 +21,7 @@ jobs:
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on Ubuntu 24.04 (x86_64) with Go ${{ matrix.go }}
+    name: Build WasmEdge-go on Ubuntu with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
       - name: Install go
@@ -31,11 +29,10 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache: false
-      - name: Install wasmedge
+      - name: Install and Test
         run: |
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
-      - name: Bazel Test
-        run: |
+          
           bazel test //... \
             --test_output=errors \
             --copt="-I$HOME/.wasmedge/include" \
@@ -51,7 +48,7 @@ jobs:
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on MacOS 14 (ARM64) with Go ${{ matrix.go }}
+    name: Build WasmEdge-go on MacOS with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
       - name: Install go
@@ -59,12 +56,11 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache: false
-      - name: Install wasmedge
+      - name: Install and Test
         run: |
-          # Native macOS standard
+          # Use curl for macOS reliability
           curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
-      - name: Bazel Test
-        run: |
+          
           bazel test //... \
             --test_output=errors \
             --copt="-I$HOME/.wasmedge/include" \
