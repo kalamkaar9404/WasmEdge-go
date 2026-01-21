@@ -7,7 +7,7 @@ concurrency:
 on:
   push:
     branches:
-      - "**"
+      - master  # Reverted from "**" for the final PR
     tags:
       - "*"
   pull_request:
@@ -23,15 +23,14 @@ jobs:
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on Ubuntu 24.04 x86_64 with Go ${{ matrix.go }}
+    name: Build WasmEdge-go on Ubuntu 24.04 (x86_64) with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
       - name: Install go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-      - name: Check go version
-        run: go version
+          cache: false
       - name: Install wasmedge
         run: |
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
@@ -42,7 +41,6 @@ jobs:
             --copt="-I$HOME/.wasmedge/include" \
             --linkopt="-L$HOME/.wasmedge/lib" \
             --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
-            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
 
   build_macos:
@@ -53,17 +51,17 @@ jobs:
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on MacOS 14 x86_64 with Go ${{ matrix.go }}
+    name: Build WasmEdge-go on MacOS 14 (ARM64) with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
       - name: Install go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-      - name: Check go version
-        run: go version
+          cache: false
       - name: Install wasmedge
         run: |
+          # Native macOS standard
           curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
       - name: Bazel Test
         run: |
@@ -71,6 +69,5 @@ jobs:
             --test_output=errors \
             --copt="-I$HOME/.wasmedge/include" \
             --linkopt="-L$HOME/.wasmedge/lib" \
-            --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
