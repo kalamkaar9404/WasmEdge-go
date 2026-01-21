@@ -39,7 +39,7 @@ jobs:
           source $HOME/.wasmedge/env
           go build ./wasmedge/
       - name: Bazel Test
-        run:CGO_ENABLED=1 bazel test //...
+        run: CGO_ENABLED=1 bazel test //...
 
   build_macos:
     runs-on: macos-14
