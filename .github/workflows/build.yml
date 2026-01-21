@@ -17,6 +17,8 @@ on:
 jobs:
   build_ubuntu:
     runs-on: ubuntu-24.04
+    env:
+      CGO_ENABLED: 1
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
@@ -37,10 +39,12 @@ jobs:
           source $HOME/.wasmedge/env
           go build ./wasmedge/
       - name: Bazel Test
-        run: bazel test //...
+        run: CGO_ENABLED=1 bazel test //...
 
   build_macos:
     runs-on: macos-14
+    env:
+      CGO_ENABLED: 1
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
@@ -61,4 +65,4 @@ jobs:
           source $HOME/.wasmedge/env
           go build ./wasmedge/
       - name: Bazel Test
-        run: bazel test //...
+        run: CGO_ENABLED=1 bazel test //...
