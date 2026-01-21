@@ -19,11 +19,15 @@ jobs:
         run: |
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
           
+      - name: Bazel Test
+        run: |
+          # We pass paths directly to the compiler/linker to bypass sandbox restrictions
           bazel test //... \
             --test_output=errors \
             --copt="-I$HOME/.wasmedge/include" \
             --linkopt="-L$HOME/.wasmedge/lib" \
             --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
             
   build_macos:
@@ -41,9 +45,13 @@ jobs:
         run: |
           curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
           
+      - name: Bazel Test
+        run: |
+          # We pass paths directly to the compiler/linker to bypass sandbox restrictions
           bazel test //... \
             --test_output=errors \
             --copt="-I$HOME/.wasmedge/include" \
             --linkopt="-L$HOME/.wasmedge/lib" \
+            --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
