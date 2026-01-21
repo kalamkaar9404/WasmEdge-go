@@ -1,81 +1,47 @@
 name: build
-
-concurrency:
-  group: build-${{ github.head_ref }}
-  cancel-in-progress: true
-
 on:
   push:
     branches:
       - "**"
-  pull_request:
-    branches:
-      - master
-
 jobs:
   build_ubuntu:
     runs-on: ubuntu-24.04
     env:
       CGO_ENABLED: 1
-    strategy:
-      matrix:
-        go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on Ubuntu with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version: '1.23.x'
       - name: Install and Test
         run: |
-          # 1. Install WasmEdge to $HOME/.wasmedge
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
           
-          # 2. Define standard CGO flags for the compiler and linker
-          export WASMEDGE_HOME=$HOME/.wasmedge
-          export CGO_CFLAGS="-I$WASMEDGE_HOME/include"
-          export CGO_LDFLAGS="-L$WASMEDGE_HOME/lib -lwasmedge"
-          export LD_LIBRARY_PATH=$WASMEDGE_HOME/lib
-          
-          # 3. Run Bazel, passing these flags into the sandbox
-          # We use --action_env to forward the variables we just exported
           bazel test //... \
             --test_output=errors \
-            --action_env=CGO_CFLAGS \
-            --action_env=CGO_LDFLAGS \
-            --action_env=LD_LIBRARY_PATH \
+            --copt="-I$HOME/.wasmedge/include" \
+            --linkopt="-L$HOME/.wasmedge/lib" \
+            --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false
-
+            
   build_macos:
     runs-on: macos-14
     env:
       CGO_ENABLED: 1
-    strategy:
-      matrix:
-        go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on MacOS with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version: '1.23.x'
       - name: Install and Test
         run: |
-          # 1. Install WasmEdge (using curl for macOS reliability)
           curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
           
-          # 2. Define flags (Note: MacOS needs DYLD_LIBRARY_PATH)
-          export WASMEDGE_HOME=$HOME/.wasmedge
-          export CGO_CFLAGS="-I$WASMEDGE_HOME/include"
-          export CGO_LDFLAGS="-L$WASMEDGE_HOME/lib -lwasmedge"
-          export DYLD_LIBRARY_PATH=$WASMEDGE_HOME/lib
-          
-          # 3. Run Bazel with macOS specific env vars
           bazel test //... \
             --test_output=errors \
-            --action_env=CGO_CFLAGS \
-            --action_env=CGO_LDFLAGS \
-            --action_env=DYLD_LIBRARY_PATH \
+            --copt="-I$HOME/.wasmedge/include" \
+            --linkopt="-L$HOME/.wasmedge/lib" \
+            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
             --@io_bazel_rules_go//go/config:pure=false

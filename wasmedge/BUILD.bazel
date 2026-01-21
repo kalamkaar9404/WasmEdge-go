@@ -28,7 +28,9 @@ go_library(
         "vm.go",
     ],
     cgo = True,
-    cdeps = ["@wasmedge_c//:wasmedge_c"],
+    # REMOVE: cdeps = ["@wasmedge_c//:wasmedge_c"],
+    # ADD THIS:
+    clinkopts = ["-lwasmedge"], 
     importpath = "github.com/second-state/WasmEdge-go/wasmedge",
     visibility = ["//visibility:public"],
 )
