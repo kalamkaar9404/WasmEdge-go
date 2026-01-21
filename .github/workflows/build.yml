@@ -35,10 +35,6 @@ jobs:
       - name: Install wasmedge
         run: |
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
-      - name: Build WasmEdge-go
-        run: |
-          source $HOME/.wasmedge/env
-          go build ./wasmedge/
       - name: Bazel Test
         run: |
           bazel test //... \
@@ -69,10 +65,6 @@ jobs:
       - name: Install wasmedge
         run: |
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
-      - name: Build WasmEdge-go
-        run: |
-          source $HOME/.wasmedge/env
-          go build ./wasmedge/
       - name: Bazel Test
         run: |
           bazel test //... \
