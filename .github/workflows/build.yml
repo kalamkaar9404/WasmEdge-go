@@ -40,7 +40,14 @@ jobs:
           source $HOME/.wasmedge/env
           go build ./wasmedge/
       - name: Bazel Test
-        run: bazel test //...
+        run: |
+          bazel test //... \
+            --test_output=errors \
+            --copt="-I$HOME/.wasmedge/include" \
+            --linkopt="-L$HOME/.wasmedge/lib" \
+            --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --@io_bazel_rules_go//go/config:pure=false
 
   build_macos:
     runs-on: macos-14
@@ -67,4 +74,11 @@ jobs:
           source $HOME/.wasmedge/env
           go build ./wasmedge/
       - name: Bazel Test
-        run: bazel test //...
+        run: |
+          bazel test //... \
+            --test_output=errors \
+            --copt="-I$HOME/.wasmedge/include" \
+            --linkopt="-L$HOME/.wasmedge/lib" \
+            --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --@io_bazel_rules_go//go/config:pure=false
