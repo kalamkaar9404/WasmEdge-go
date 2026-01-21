@@ -19,14 +19,15 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       CGO_ENABLED: 1
+      USE_BAZEL_VERSION: 7.4.1
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
     name: Build WasmEdge-go on Ubuntu 24.04 x86_64 with Go ${{ matrix.go }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
       - name: Check go version
@@ -45,6 +46,7 @@ jobs:
     runs-on: macos-14
     env:
       CGO_ENABLED: 1
+      USE_BAZEL_VERSION: 7.4.1
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
