@@ -44,25 +44,21 @@ jobs:
     strategy:
       matrix:
         go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on MacOS 14 with Go ${{ matrix.go }}
+    name: Build WasmEdge-go on MacOS 14 x86_64 with Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v4
       - name: Install go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
+      - name: Check go version
+        run: go version
       - name: Install wasmedge
         run: |
-          if [[ "$(uname -m)" == "arm64" || "$(uname -m)" == "aarch64" ]]; then
-            PLATFORM="darwin_arm64"
-          else
-            PLATFORM="darwin_x86_64"
-          fi
-          wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0 -p $PLATFORM
-          source $HOME/.wasmedge/env
+          wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
       - name: Build WasmEdge-go
         run: |
           source $HOME/.wasmedge/env
           go build ./wasmedge/
       - name: Bazel Test
-        run: bazel test //... --test_output=errors --@io_bazel_rules_go//go/config:pure=false
+        run: bazel test //...
