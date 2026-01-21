@@ -7,7 +7,7 @@ concurrency:
 on:
   push:
     branches:
-      - master
+      - "**"
     tags:
       - "*"
   pull_request:
@@ -66,4 +66,3 @@ jobs:
           go build ./wasmedge/
       - name: Bazel Test
         run: bazel test //...
- 
