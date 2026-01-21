@@ -1,2 +1,5 @@
-load("@gazelle//:def.bzl", "gazelle")
+load("@rules_shell//shell:def.bzl", "sh_binary")
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/second-state/WasmEdge-go
 gazelle(name = "gazelle")
