@@ -8,8 +8,6 @@ on:
   push:
     branches:
       - "**"
-    tags:
-      - "*"
   pull_request:
     branches:
       - master
@@ -17,44 +15,45 @@ on:
 jobs:
   build_ubuntu:
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on Ubuntu 24.04 x86_64 with Go ${{ matrix.go }}
+    env:
+      CGO_ENABLED: 1
     steps:
       - uses: actions/checkout@v4
-      - name: Install go
+      - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
-      - name: Install wasmedge
+          go-version: '1.23.x'
+      - name: Install WasmEdge
         run: |
           wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
-      - name: Build WasmEdge-go
-        run: |
-          source $HOME/.wasmedge/env
-          go build ./wasmedge/
       - name: Bazel Test
-        run: bazel test //... --test_output=errors --@io_bazel_rules_go//go/config:pure=false
+        run: |
+          bazel test //... \
+            --action_env=CPATH=$HOME/.wasmedge/include \
+            --action_env=LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --action_env=LD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --linkopt=-L$HOME/.wasmedge/lib \
+            --repo_env=CC=gcc \
+            --@io_bazel_rules_go//go/config:pure=false
 
   build_macos:
     runs-on: macos-14
-    strategy:
-      matrix:
-        go: [ '1.22.x', '1.23.x' ]
-    name: Build WasmEdge-go on MacOS 14 with Go ${{ matrix.go }}
+    env:
+      CGO_ENABLED: 1
     steps:
       - uses: actions/checkout@v4
-      - name: Install go
+      - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
-      - name: Install wasmedge
+          go-version: '1.23.x'
+      - name: Install WasmEdge
         run: |
-          wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
-      - name: Build WasmEdge-go
-        run: |
-          source $HOME/.wasmedge/env
-          go build ./wasmedge/
+          curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.14.0
       - name: Bazel Test
-        run: bazel test //... --test_output=errors --@io_bazel_rules_go//go/config:pure=false
+        run: |
+          bazel test //... \
+            --action_env=CPATH=$HOME/.wasmedge/include \
+            --action_env=LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --action_env=DYLD_LIBRARY_PATH=$HOME/.wasmedge/lib \
+            --linkopt=-L$HOME/.wasmedge/lib \
+            --@io_bazel_rules_go//go/config:pure=false
